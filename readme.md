@@ -20,4 +20,4 @@ echo OPENAI_API_KEY=XXX > .env
 python main.py
 ```
 
-Check out [https://github.com/vlad-ds/gptrim](GPTrim)
+Check out [GPTrim](https://github.com/vlad-ds/gptrim)

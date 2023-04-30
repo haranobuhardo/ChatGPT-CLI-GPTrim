@@ -25,8 +25,8 @@ def askgpt(question, chat_log=None, trim=True, token_history=None):
 
     response = openai.ChatCompletion.create(model='gpt-3.5-turbo', messages=chat_log)
     answer = response.choices[0].message.content
-    trimmed_answer = answer if trim else gptrim.trim(answer)
-    chat_log.append({'role': 'assistant', 'content': gptrim.trim(trimmed_answer)})
+    trimmed_answer = answer if not trim else gptrim.trim(answer, stemmer='snowball', remove_punctuation=True, remove_stopwords=True)
+    chat_log.append({'role': 'assistant', 'content': trimmed_answer})
 
     if token_history is None:
         return answer, chat_log
@@ -39,9 +39,11 @@ def main():
     chat_log = None
     token_history = []
 
+    print('Hi there, what\'s your question today?')
     while True:
-        question = input("What is your question?\n> ")
-        trimmed_input = gptrim.trim(question)
+        question = input("Q: ")
+        trimmed_input = gptrim.trim(question,
+                        stemmer='snowball', remove_punctuation=True, remove_stopwords=True)
 
         token_history.append({'default': count_tokens(question), 'trimmed': count_tokens(trimmed_input)})
 
@@ -49,11 +51,13 @@ def main():
 
         total_default_tokens = sum([i['default'] for i in token_history])
         total_trimmed_tokens = sum([i['trimmed'] for i in token_history])
+        print('----------------------------------------')
         print('Default token total:', total_default_tokens)
         print('Trimmed token total:', total_trimmed_tokens)
         print('Token saved (%): {:.2f}%'.format((total_default_tokens - total_trimmed_tokens)/total_default_tokens*100))
-        print()
-        print(answer + '\n')
+        # print(token_history)
+        print('----------------------------------------')
+        print('A:', answer + '\n')
 
 if __name__=='__main__':
     main()
